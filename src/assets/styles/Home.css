@@ -1,0 +1,235 @@
+:root {
+  --bg-main: #f8f6ff;
+  --bg-card: #fffdfc;
+  --text-main: #38414f;
+  --text-soft: #5f6c7b;
+
+  --pastel-lilac: #e8dcff;
+  --pastel-pink: #ffdfe9;
+  --pastel-blue: #dff2ff;
+  --pastel-green: #e5f7e8;
+
+  --button-main: #d9c8ff;
+  --button-main-hover: #b299ee;
+  --button-main-border: 2px solid #4d2292;
+
+  --button-secondary: #ffd7e2;
+  --button-secondary-hover: #ef9db7;
+  --button-secondary-border: 2px solid #ae3da6; 
+
+  --shadow-soft: 0 10px 30px rgba(106, 95, 130, 0.12);
+  --border-soft: 1px solid rgba(120, 110, 145, 0.2);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, var(--bg-main) 0%, #fdfbff 100%);
+  color: var(--text-main);
+}
+
+.home-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem;
+}
+
+.home-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-card);
+  border: var(--border-soft);
+  border-radius: 28px;
+  box-shadow: var(--shadow-soft);
+  padding: 1.5rem 1.25rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.cookies-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: nowrap;
+  min-height: 52px;
+}
+
+.cookie-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.pet-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 320px;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.pet-tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pet-image {
+  width: min(80vw, 320px); 
+  max-width: 380px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  transition: opacity 0.35s ease-in-out, transform 0.25s ease;
+}
+
+.pet-image:hover {
+  transform: scale(1.02);
+}
+
+.pet-tooltip {
+  position: absolute;
+  bottom: -0.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(56, 65, 79, 0.92);
+  color: #ffffff;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.pet-tooltip-wrapper:hover .pet-tooltip,
+.pet-tooltip-wrapper:focus-within .pet-tooltip {
+  opacity: 1;
+}
+
+.pet-speech {
+  min-height: 52px;
+  max-width: 280px;
+  background: var(--pastel-blue);
+  color: var(--text-main);
+  border-radius: 18px;
+  padding: 0.85rem 1rem;
+  text-align: center;
+  line-height: 1.4;
+  font-size: 0.97rem;
+  border: var(--border-soft);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.pet-speech.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.buttons-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.primary-button,
+.secondary-button {
+  width: 100%;
+  min-height: 56px;
+  border: none;
+  border-radius: 18px;
+  padding: 0.95rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 16px rgba(120, 110, 145, 0.1);
+}
+
+.primary-button {
+  background: var(--button-main);
+}
+
+.primary-button:hover,
+.primary-button:focus-visible {
+  background: var(--button-main-hover);
+  transform: translateY(-1px);
+}
+
+.secondary-button {
+  background: var(--button-secondary);
+}
+
+.secondary-button:hover,
+.secondary-button:focus-visible {
+  background: var(--button-secondary-hover);
+  transform: translateY(-1px);
+}
+
+.primary-button:focus-visible,
+.secondary-button:focus-visible {
+  outline: 3px solid #8d79c9;
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .home-page {
+    padding: 0.9rem;
+    align-items: stretch;
+  }
+
+  .home-card {
+    max-width: 100%;
+    min-height: calc(100vh - 1.8rem);
+    justify-content: center;
+    border-radius: 24px;
+    padding: 1.2rem 1rem 1.4rem;
+  }
+
+  .cookie-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .pet-section {
+    min-height: 280px;
+  }
+
+  .pet-speech {
+    max-width: 100%;
+    font-size: 0.95rem;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 58px;
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-image,
+  .pet-speech,
+  .pet-tooltip,
+  .primary-button,
+  .secondary-button {
+    transition: none;
+  }
+}
