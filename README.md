@@ -55,4 +55,8 @@ En desenvolupament.
 
 ## Autora
 
+<<<<<<< HEAD
 Montserrat Martí Llerena, estudiant d’Enginyeria Informàtica a la UOC
+=======
+Montserrat Martí Llerena, estudiant d’Enginyeria Informàtica a la UOC
+>>>>>>> cc1148dd0320a7aa3ddd74e5da122021600232ef
