@@ -1,12 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { saveLog } from "../utils/storage";
+
+import {
+  saveLog,
+  getSelectedCategory,
+  saveSelectedCategory,
+} from "../utils/storage";
+
+import { calculateActivityImpact } from "../services/energyService";
+
+import "../assets/styles/ActivityCategory.css";
 
 export default function ActivityCategory() {
   const navigate = useNavigate();
 
-  const savedCategory = localStorage.getItem("neuropet_selected_category");
-  const initialCategory = savedCategory ? JSON.parse(savedCategory) : null;
+  const initialCategory = getSelectedCategory();
 
   const [category, setCategory] = useState(initialCategory);
   const [selected, setSelected] = useState(null);
@@ -21,8 +29,11 @@ export default function ActivityCategory() {
 
   if (!category) {
     return (
-      <main style={{ padding: "1.5rem" }}>
-        <button onClick={() => navigate("/activity")} className="back-button">
+      <main className="activity-category-page">
+        <button
+          onClick={() => navigate("/activity")}
+          className="back-button"
+        >
           ← Volver a categorías
         </button>
       </main>
@@ -34,7 +45,7 @@ export default function ActivityCategory() {
 
     if (!selected || Number.isNaN(duration) || duration <= 0) return;
 
-    const impact = selected.value * duration;
+    const impact = calculateActivityImpact(selected.value, duration);
 
     saveLog({
       category: category.name,
@@ -57,6 +68,7 @@ export default function ActivityCategory() {
     if (Number.isNaN(parsed)) return;
 
     const updatedItems = [...category.items];
+
     updatedItems[index] = {
       ...updatedItems[index],
       value: parsed,
@@ -68,10 +80,7 @@ export default function ActivityCategory() {
     };
 
     setCategory(updatedCategory);
-    localStorage.setItem(
-      "neuropet_selected_category",
-      JSON.stringify(updatedCategory)
-    );
+    saveSelectedCategory(updatedCategory);
 
     setEditingIndex(null);
     setNewValue("");
@@ -95,76 +104,34 @@ export default function ActivityCategory() {
     };
 
     setCategory(updatedCategory);
-    localStorage.setItem(
-      "neuropet_selected_category",
-      JSON.stringify(updatedCategory)
-    );
+    saveSelectedCategory(updatedCategory);
 
     setNewActivityName("");
     setNewActivityValue("");
   };
 
   return (
-    <main
-      style={{
-        padding: "1.5rem",
-        maxWidth: "700px",
-        margin: "0 auto",
-      }}
-    >
-      <button onClick={() => navigate("/activity")} className="back-button">
+    <main className="activity-category-page">
+      <button
+        onClick={() => navigate("/activity")}
+        className="back-button"
+      >
         ← Volver a categorías
       </button>
 
-      <h1
-        style={{
-          background: "#fcd5ce",
-          textAlign: "center",
-          fontWeight: "bold",
-          padding: "1rem",
-          borderRadius: "12px",
-          border: "1px solid #ff4c2d",
-          margin: "6rem auto 1.5rem auto",
-        }}
-      >
+      <h1 className="category-title">
         {category.name}
       </h1>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-          marginTop: "1.5rem",
-        }}
-      >
+      <div className="activity-list">
         {category.items.map((item, index) => (
-          <div key={item.name}>
-            <div
-              className="activity-item"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "0.75rem",
-                background: "#edfeff",
-                border: "1px solid #0cc0d0",
-                padding: "0.9rem 1rem",
-                borderRadius: "14px",
-              }}
-            >
+          <div key={`${item.name}-${index}`}>
+            <div className="activity-item">
               <div
                 className="activity-info"
                 onClick={() => {
                   setSelected(item);
                   setShowModal(true);
-                }}
-                style={{
-                  flex: 1,
-                  cursor: "pointer",
-                  textAlign: "left",
-                  fontSize: "1rem",
-                  lineHeight: 1.4,
                 }}
               >
                 {item.emoji} {item.name} ({item.value}%/h)
@@ -182,33 +149,14 @@ export default function ActivityCategory() {
                   }
                 }}
                 aria-label={`Editar ${item.name}`}
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                  fontSize: "1.8rem",
-                  lineHeight: 1,
-                  color: "#6b7280",
-                  padding: "0.2rem 0.45rem",
-                  borderRadius: "10px",
-                  flexShrink: 0,
-                }}
               >
                 ⋮
               </button>
             </div>
 
             {editingIndex === index && (
-              <div
-                style={{
-                  background: "#ffffff",
-                  border: "1px solid #ddd",
-                  borderRadius: "14px",
-                  padding: "1rem",
-                  marginTop: "0.5rem",
-                }}
-              >
-                <p style={{ marginTop: 0, marginBottom: "0.75rem" }}>
+              <div className="edit-panel">
+                <p className="edit-title">
                   Modificar porcentaje por hora
                 </p>
 
@@ -217,25 +165,12 @@ export default function ActivityCategory() {
                   value={newValue}
                   onChange={(e) => setNewValue(e.target.value)}
                   placeholder="Ej: -10 o 8"
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem",
-                    marginBottom: "0.75rem",
-                    borderRadius: "10px",
-                    border: "1px solid #ddd",
-                  }}
+                  className="input-field"
                 />
 
                 <button
                   onClick={() => handleEditValue(index)}
-                  style={{
-                    padding: "0.75rem 1rem",
-                    borderRadius: "10px",
-                    border: "none",
-                    background: "#d9c8ff",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                  }}
+                  className="save-button"
                 >
                   Guardar cambio
                 </button>
@@ -245,8 +180,8 @@ export default function ActivityCategory() {
         ))}
       </div>
 
-      <div style={{ marginTop: "2rem" }}>
-        <h2 style={{ fontSize: "1.1rem", marginBottom: "0.75rem" }}>
+      <div className="new-activity-section">
+        <h2 className="new-activity-title">
           Añadir nueva actividad
         </h2>
 
@@ -255,13 +190,7 @@ export default function ActivityCategory() {
           placeholder="Nombre de la actividad"
           value={newActivityName}
           onChange={(e) => setNewActivityName(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "0.75rem",
-            borderRadius: "10px",
-            border: "1px solid #ddd",
-          }}
+          className="input-field"
         />
 
         <input
@@ -269,59 +198,29 @@ export default function ActivityCategory() {
           placeholder="% por hora"
           value={newActivityValue}
           onChange={(e) => setNewActivityValue(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "0.75rem",
-            borderRadius: "10px",
-            border: "1px solid #ddd",
-          }}
+          className="input-field"
         />
 
         <button
           onClick={handleAddActivity}
-          style={{
-            padding: "0.85rem 1rem",
-            borderRadius: "12px",
-            border: "none",
-            background: "#d9c8ff",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
+          className="save-button"
         >
           Añadir nueva actividad
         </button>
       </div>
 
       {showModal && selected && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0, 0, 0, 0.35)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "1rem",
-          }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              width: "100%",
-              maxWidth: "360px",
-              borderRadius: "18px",
-              padding: "1.25rem",
-            }}
-          >
-            <h3 style={{ marginTop: 0 }}>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>
               {selected.emoji} {selected.name}
             </h3>
 
-            <p style={{ fontSize: "0.95rem", marginBottom: "1rem" }}>
-              Introduce cuánto tiempo has hecho esta actividad. Para media hora
-              pon <strong>0.5</strong>, para una hora pon <strong>1</strong>, y
-              para una hora y media pon <strong>1.5</strong>.
+            <p className="modal-text">
+              Introduce cuánto tiempo has hecho esta actividad.
+              Para media hora pon <strong>0.5</strong>,
+              para una hora pon <strong>1</strong>,
+              y para una hora y media pon <strong>1.5</strong>.
             </p>
 
             <input
@@ -330,27 +229,13 @@ export default function ActivityCategory() {
               value={hours}
               onChange={(e) => setHours(e.target.value)}
               placeholder="Ej: 0.5"
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                marginBottom: "1rem",
-                borderRadius: "10px",
-                border: "1px solid #ddd",
-              }}
+              className="input-field"
             />
 
-            <div style={{ display: "flex", gap: "0.75rem" }}>
+            <div className="modal-buttons">
               <button
                 onClick={handleSaveLog}
-                style={{
-                  flex: 1,
-                  padding: "0.8rem",
-                  borderRadius: "10px",
-                  border: "none",
-                  background: "#d9c8ff",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
+                className="save-button modal-button"
               >
                 Guardar
               </button>
@@ -361,15 +246,7 @@ export default function ActivityCategory() {
                   setSelected(null);
                   setHours("");
                 }}
-                style={{
-                  flex: 1,
-                  padding: "0.8rem",
-                  borderRadius: "10px",
-                  border: "1px solid #ddd",
-                  background: "#fff",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                }}
+                className="cancel-button modal-button"
               >
                 Cancelar
               </button>

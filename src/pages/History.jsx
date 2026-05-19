@@ -1,19 +1,32 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLogs } from "../utils/storage";
+import { loadLogsFromCloud } from "../services/logsApi";
+
+import "../assets/styles/History.css";
 
 export default function History() {
   const navigate = useNavigate();
-  const logs = getLogs();
+
+  const [logs, setLogs] = useState(getLogs());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadLogs() {
+      const cloudLogs = await loadLogsFromCloud();
+
+      if (cloudLogs.length > 0) {
+        setLogs(cloudLogs);
+      }
+
+      setLoading(false);
+    }
+
+    loadLogs();
+  }, []);
 
   return (
-    <main
-      style={{
-        paddingTop: "5rem",
-        padding: "1.5rem",
-        maxWidth: "700px",
-        margin: "0 auto",
-      }}
-    >
+    <main className="history-page">
       <button
         onClick={() => navigate("/settings")}
         className="back-button"
@@ -21,66 +34,43 @@ export default function History() {
         ← Configuración
       </button>
 
-      <h1
-        style={{
-          background: "#d9f99d",
-          textAlign: "center",
-          fontWeight: "bold",
-          marginTop: "6rem",
-          padding: "1rem",
-          borderRadius: "12px",
-          width: "fit-content",
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
-      >
+      <h1 className="history-title">
         Historial
       </h1>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.75rem",
-          marginTop: "1.5rem",
-        }}
-      >
-        {logs.length === 0 ? (
-          <div
-            style={{
-              background: "#edfeff",
-              border: "1px solid #0cc0d0",
-              borderRadius: "14px",
-              padding: "1rem",
-            }}
-          >
+      <div className="history-list">
+        {loading ? (
+          <div className="history-card">
+            Cargando historial...
+          </div>
+        ) : logs.length === 0 ? (
+          <div className="history-card">
             No hay actividades guardadas todavía.
           </div>
         ) : (
           logs.map((log, index) => (
             <div
-              key={index}
-              style={{
-                background: "#edfeff",
-                border: "1px solid #0cc0d0",
-                borderRadius: "14px",
-                padding: "1rem",
-              }}
+              key={log.id ?? index}
+              className="history-card"
             >
-              <div style={{ fontWeight: "700", marginBottom: "0.4rem" }}>
+              <div className="history-activity">
                 {log.emoji ? `${log.emoji} — ${log.activity}` : log.activity}
               </div>
 
-              <div style={{ fontSize: "0.95rem", color: "#444" }}>
+              <div className="history-detail">
+                Categoría: {log.category || "Sin categoría"}
+              </div>
+
+              <div className="history-detail">
                 Duración: {log.duration ?? 0} h
               </div>
 
-              <div style={{ fontSize: "0.95rem", color: "#444" }}>
+              <div className="history-detail">
                 Impacto: {log.impact > 0 ? "+" : ""}
                 {log.impact}%
               </div>
 
-              <div style={{ fontSize: "0.95rem", color: "#444" }}>
+              <div className="history-detail">
                 Fecha: {log.date || "Sin fecha"}
               </div>
             </div>

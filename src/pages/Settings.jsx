@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import {
+  getCurrentUser,
+  getProfile,
+  signOut,
+} from "../services/authService";
+
 import {
   getSettings,
   saveSettings,
@@ -7,25 +14,55 @@ import {
   resetAppData,
 } from "../utils/storage";
 
+import {
+  loadSettingsFromCloud,
+  saveSettingsToCloud,
+} from "../services/settingsApi";
+
+import "../assets/styles/Settings.css";
+
+const DEFAULT_SETTINGS = {
+  autoRecovery: false,
+  showExactEnergy: true,
+  autoOpenHelp: false,
+  breathingCycles: 5,
+};
+
 export default function Settings() {
   const navigate = useNavigate();
 
-  const [settings, setSettings] = useState({
-    autoRecovery: false,
-    showExactEnergy: true,
-    autoOpenHelp: false,
-    breathingCycles: 5,
-  });
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
   useEffect(() => {
-    const saved = getSettings();
+    async function loadData() {
+      const savedLocal = getSettings();
 
-    setSettings({
-      autoRecovery: saved.autoRecovery ?? false,
-      showExactEnergy: saved.showExactEnergy ?? true,
-      autoOpenHelp: saved.autoOpenHelp ?? false,
-      breathingCycles: saved.breathingCycles ?? 5,
-    });
+      setSettings({
+        autoRecovery: savedLocal.autoRecovery ?? false,
+        showExactEnergy: savedLocal.showExactEnergy ?? true,
+        autoOpenHelp: savedLocal.autoOpenHelp ?? false,
+        breathingCycles: savedLocal.breathingCycles ?? 5,
+      });
+
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+
+      if (currentUser) {
+        const { data } = await getProfile(currentUser.id);
+        setProfile(data);
+
+        const cloudSettings = await loadSettingsFromCloud();
+
+        if (cloudSettings) {
+          setSettings(cloudSettings);
+          saveSettings(cloudSettings);
+        }
+      }
+    }
+
+    loadData();
   }, []);
 
   const handleChange = (key) => {
@@ -42,8 +79,16 @@ export default function Settings() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     saveSettings(settings);
+
+    const error = await saveSettingsToCloud(settings);
+
+    if (error) {
+      alert("Configuración guardada solo en este dispositivo");
+      return;
+    }
+
     alert("Configuración guardada");
   };
 
@@ -61,61 +106,69 @@ export default function Settings() {
 
     resetAppData();
     setSettings(getSettings());
+
     alert("Todos los datos han sido borrados");
     navigate("/");
   };
 
   return (
-    <main
-      style={{
-        paddingTop: "5rem",
-        padding: "1.5rem",
-        maxWidth: "600px",
-        margin: "0 auto",
-      }}
-    >
-      <button onClick={() => navigate("/")} className="back-button">
+    <main className="settings-page">
+      <button
+        onClick={() => navigate("/")}
+        className="back-button"
+      >
         ← Inicio
       </button>
 
-      <h1
-        style={{
-          background: "#d8f3dc",
-          textAlign: "center",
-          fontWeight: "bold",
-          marginTop: "6rem",
-          padding: "1rem",
-          borderRadius: "12px",
-          width: "fit-content",
-          marginLeft: "auto",
-          marginRight: "auto",
-          color: "#2d6a4f",
-        }}
-      >
+      <h1 className="settings-title">
         Configuración
       </h1>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-          marginTop: "1.5rem",
-        }}
-      >
-        <div
-          style={{
-            background: "#edfeff",
-            border: "1px solid #0cc0d0",
-            borderRadius: "14px",
-            padding: "1rem",
-          }}
-        >
-          <h2 style={{ margin: "0 0 0.75rem 0", fontSize: "1.1rem" }}>
-            Recuperación automática
-          </h2>
+      <div className="settings-container">
+        <div className="profile-card">
+          <img
+            src="/images/avatar_stock.webp"
+            alt="avatar usuario"
+            className="profile-avatar"
+          />
 
-          <label style={{ display: "flex", gap: "0.6rem", cursor: "pointer" }}>
+          <div className="profile-info">
+            <h2 className="profile-name">
+              {user
+                ? profile?.username || user.email
+                : "Sesión"}
+            </h2>
+
+            <p className="profile-status">
+              {user
+                ? "Sesión iniciada"
+                : "No has iniciado sesión"}
+            </p>
+          </div>
+
+          {user ? (
+            <button
+              onClick={async () => {
+                await signOut();
+                setUser(null);
+                setProfile(null);
+              }}
+              className="logout-button"
+            >
+              Cerrar sesión
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="login-button"
+            >
+              Iniciar sesión
+            </button>
+          )}
+        </div>
+
+        <SettingCard title="Recuperación automática">
+          <label className="settings-label">
             <input
               type="checkbox"
               checked={settings.autoRecovery}
@@ -124,24 +177,13 @@ export default function Settings() {
             Activar recuperación automática de energía
           </label>
 
-          <p style={{ marginTop: "0.75rem", fontSize: "0.95rem" }}>
+          <p className="settings-description">
             Recupera 5% de energía por hora.
           </p>
-        </div>
+        </SettingCard>
 
-        <div
-          style={{
-            background: "#edfeff",
-            border: "1px solid #0cc0d0",
-            borderRadius: "14px",
-            padding: "1rem",
-          }}
-        >
-          <h2 style={{ margin: "0 0 0.75rem 0", fontSize: "1.1rem" }}>
-            Visualización
-          </h2>
-
-          <label style={{ display: "flex", gap: "0.6rem", cursor: "pointer" }}>
+        <SettingCard title="Visualización">
+          <label className="settings-label">
             <input
               type="checkbox"
               checked={settings.showExactEnergy}
@@ -149,21 +191,10 @@ export default function Settings() {
             />
             Mostrar porcentaje exacto de energía
           </label>
-        </div>
+        </SettingCard>
 
-        <div
-          style={{
-            background: "#edfeff",
-            border: "1px solid #0cc0d0",
-            borderRadius: "14px",
-            padding: "1rem",
-          }}
-        >
-          <h2 style={{ margin: "0 0 0.75rem 0", fontSize: "1.1rem" }}>
-            Ayuda automática
-          </h2>
-
-          <label style={{ display: "flex", gap: "0.6rem", cursor: "pointer" }}>
+        <SettingCard title="Ayuda automática">
+          <label className="settings-label">
             <input
               type="checkbox"
               checked={settings.autoOpenHelp}
@@ -171,130 +202,90 @@ export default function Settings() {
             />
             Abrir ayuda automáticamente al llegar a 0%
           </label>
-        </div>
+        </SettingCard>
 
-        <div
-          style={{
-            background: "#edfeff",
-            border: "1px solid #0cc0d0",
-            borderRadius: "14px",
-            padding: "1rem",
-          }}
-        >
-          <h2 style={{ margin: "0 0 0.75rem 0", fontSize: "1.1rem" }}>
-            Respiración
-          </h2>
-
-          <label style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+        <SettingCard title="Respiración">
+          <label className="settings-select-label">
             Ciclos de respiración
 
             <select
               value={settings.breathingCycles}
-              onChange={(e) => handleCyclesChange(e.target.value)}
-              style={{
-                padding: "0.5rem",
-                borderRadius: "10px",
-                border: "1px solid #0cc0d0",
-                cursor: "pointer",
-              }}
+              onChange={(e) =>
+                handleCyclesChange(e.target.value)
+              }
+              className="settings-select"
             >
-              <option value="3">3 ciclos (rápido)</option>
-              <option value="5">5 ciclos (recomendado)</option>
-              <option value="10">10 ciclos (profundo)</option>
+              <option value="3">
+                3 ciclos (rápido)
+              </option>
+
+              <option value="5">
+                5 ciclos (recomendado)
+              </option>
+
+              <option value="10">
+                10 ciclos (profundo)
+              </option>
             </select>
           </label>
-        </div>
+        </SettingCard>
 
-        <div
-          style={{
-            background: "#edfeff",
-            border: "1px solid #0cc0d0",
-            borderRadius: "14px",
-            padding: "1rem",
-          }}
-        >
-          <h2 style={{ margin: "0 0 0.75rem 0", fontSize: "1.1rem" }}>
-            Historial
-          </h2>
-
-          <p style={{ fontSize: "0.95rem" }}>
+        <SettingCard title="Historial">
+          <p className="settings-description">
             Guarda actividades, energía y duración.
           </p>
 
-          <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.75rem" }}>
+          <div className="history-buttons">
             <button
               onClick={() => navigate("/history")}
-              style={{
-                background: "#d9f99d",
-                borderRadius: "12px",
-                padding: "0.6rem 1rem",
-                cursor: "pointer",
-              }}
+              className="history-button"
             >
               Ver historial
             </button>
 
             <button
               onClick={handleClearHistory}
-              style={{
-                background: "#fee2e2",
-                borderRadius: "12px",
-                padding: "0.6rem 1rem",
-                cursor: "pointer",
-              }}
+              className="danger-button"
             >
               Borrar historial
             </button>
           </div>
-        </div>
+        </SettingCard>
 
-        <div
-          style={{
-            background: "#fff1f2",
-            border: "1px solid #fda4af",
-            borderRadius: "14px",
-            padding: "1rem",
-          }}
-        >
-          <h2 style={{ color: "#9f1239" }}>Borrar todo</h2>
+        <div className="reset-card">
+          <h2 className="reset-title">
+            Borrar todo
+          </h2>
 
           <button
             onClick={handleClearAll}
-            style={{
-              background: "#fda4af",
-              borderRadius: "12px",
-              padding: "0.6rem 1rem",
-              cursor: "pointer",
-              color: "#410000",
-            }}
+            className="reset-button"
           >
             Resetear app
           </button>
         </div>
 
-        <div
-  style={{
-    display: "flex",
-    justifyContent: "flex-end",
-    marginTop: "0.5rem",
-  }}
->
-  <button
-    onClick={handleSave}
-    style={{
-      background: "#ffffff",
-      border: "1px solid #cbd5e1",
-      borderRadius: "12px",
-      padding: "0.6rem 1rem",
-      cursor: "pointer",
-      fontWeight: "600",
-      width: "auto",
-    }}
-  >
-    Guardar
-  </button>
-</div>
+        <div className="save-container">
+          <button
+            onClick={handleSave}
+            className="save-settings-button"
+          >
+            Guardar
+          </button>
+        </div>
       </div>
     </main>
+  );
+}
+
+function SettingCard({ title, children }) {
+  return (
+    <div className="setting-card">
+      <h2 className="setting-card-title">
+        {title}
+      </h2>
+
+      {children}
+    </div>
   );
 }
