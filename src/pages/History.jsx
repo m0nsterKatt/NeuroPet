@@ -1,29 +1,11 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getLogs } from "../utils/storage";
-import { loadLogsFromCloud } from "../services/logsApi";
+import { useEnergy } from "../context/energyContext";
 
 import "../assets/styles/History.css";
 
 export default function History() {
   const navigate = useNavigate();
-
-  const [logs, setLogs] = useState(getLogs());
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadLogs() {
-      const cloudLogs = await loadLogsFromCloud();
-
-      if (cloudLogs.length > 0) {
-        setLogs(cloudLogs);
-      }
-
-      setLoading(false);
-    }
-
-    loadLogs();
-  }, []);
+  const { logs, loading } = useEnergy();
 
   return (
     <main className="history-page">
@@ -34,15 +16,11 @@ export default function History() {
         ← Configuración
       </button>
 
-      <h1 className="history-title">
-        Historial
-      </h1>
+      <h1 className="history-title">Historial</h1>
 
       <div className="history-list">
         {loading ? (
-          <div className="history-card">
-            Cargando historial...
-          </div>
+          <div className="history-card">Cargando historial...</div>
         ) : logs.length === 0 ? (
           <div className="history-card">
             No hay actividades guardadas todavía.
@@ -54,7 +32,9 @@ export default function History() {
               className="history-card"
             >
               <div className="history-activity">
-                {log.emoji ? `${log.emoji} — ${log.activity}` : log.activity}
+                {log.emoji
+                  ? `${log.emoji} — ${log.activity}`
+                  : log.activity}
               </div>
 
               <div className="history-detail">

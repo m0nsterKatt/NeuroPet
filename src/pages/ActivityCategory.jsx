@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
-  saveLog,
   getSelectedCategory,
   saveSelectedCategory,
 } from "../utils/storage";
+
+import { useEnergy } from "../context/energyContext";
 
 import { calculateActivityImpact } from "../services/energyService";
 
@@ -13,6 +14,7 @@ import "../assets/styles/ActivityCategory.css";
 
 export default function ActivityCategory() {
   const navigate = useNavigate();
+  const { addLog } = useEnergy();
 
   const initialCategory = getSelectedCategory();
 
@@ -40,14 +42,14 @@ export default function ActivityCategory() {
     );
   }
 
-  const handleSaveLog = () => {
+  const handleSaveLog = async () => {
     const duration = parseFloat(hours);
 
     if (!selected || Number.isNaN(duration) || duration <= 0) return;
 
     const impact = calculateActivityImpact(selected.value, duration);
 
-    saveLog({
+    await addLog({
       category: category.name,
       activity: selected.name,
       emoji: selected.emoji,
@@ -119,9 +121,7 @@ export default function ActivityCategory() {
         ← Volver a categorías
       </button>
 
-      <h1 className="category-title">
-        {category.name}
-      </h1>
+      <h1 className="category-title">{category.name}</h1>
 
       <div className="activity-list">
         {category.items.map((item, index) => (
@@ -156,9 +156,7 @@ export default function ActivityCategory() {
 
             {editingIndex === index && (
               <div className="edit-panel">
-                <p className="edit-title">
-                  Modificar porcentaje por hora
-                </p>
+                <p className="edit-title">Modificar porcentaje por hora</p>
 
                 <input
                   type="number"
@@ -181,9 +179,7 @@ export default function ActivityCategory() {
       </div>
 
       <div className="new-activity-section">
-        <h2 className="new-activity-title">
-          Añadir nueva actividad
-        </h2>
+        <h2 className="new-activity-title">Añadir nueva actividad</h2>
 
         <input
           type="text"
@@ -201,10 +197,7 @@ export default function ActivityCategory() {
           className="input-field"
         />
 
-        <button
-          onClick={handleAddActivity}
-          className="save-button"
-        >
+        <button onClick={handleAddActivity} className="save-button">
           Añadir nueva actividad
         </button>
       </div>
@@ -217,10 +210,9 @@ export default function ActivityCategory() {
             </h3>
 
             <p className="modal-text">
-              Introduce cuánto tiempo has hecho esta actividad.
-              Para media hora pon <strong>0.5</strong>,
-              para una hora pon <strong>1</strong>,
-              y para una hora y media pon <strong>1.5</strong>.
+              Introduce cuánto tiempo has hecho esta actividad. Para media hora
+              pon <strong>0.5</strong>, para una hora pon <strong>1</strong>, y
+              para una hora y media pon <strong>1.5</strong>.
             </p>
 
             <input

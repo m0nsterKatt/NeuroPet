@@ -1,25 +1,40 @@
 .activity-category-page {
-  padding: 1.5rem;
+  padding-top: 5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-bottom: 2rem;
   max-width: 700px;
   margin: 0 auto;
 }
 
+.activity-category-panel {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.62);
+  border: var(--border-soft);
+  border-radius: 28px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 8px 24px rgba(120, 110, 145, 0.08);
+  padding: 1.25rem;
+}
+
 .category-title {
-  background: var(--pastel-orange);
+  background: #d9ccff;
   text-align: center;
   font-weight: bold;
   padding: 1rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-orange);
-  margin: 6rem auto 1.5rem auto;
-  color: #5f2d20;
+  border-radius: 18px;
+  border: 1px solid #9a59cb;
+  width: 100%;
+  margin: 1rem 0 1.5rem;
+  color: #3b2f5c;
+  font-size: 1.6rem;
 }
 
 .activity-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
+  gap: 1rem;
 }
 
 .activity-item {
@@ -27,10 +42,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  background: var(--bg-soft-blue);
-  border: 1px solid var(--border-blue);
-  padding: 0.9rem 1rem;
-  border-radius: var(--radius-lg);
+  background: #fff3fb;
+  border: 1px solid #e29bfa;
+  padding: 0.95rem 1rem;
+  border-radius: 18px;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 2px 8px rgba(120, 110, 145, 0.06);
 }
 
 .activity-info {
@@ -39,40 +58,96 @@
   text-align: left;
   font-size: 1rem;
   line-height: 1.4;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
 .activity-menu {
-  border: none;
-  background: transparent;
+  border: 1px solid #e29bfa;
+  background: #ffffff;
   cursor: pointer;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   line-height: 1;
   color: #6b7280;
-  padding: 0.2rem 0.45rem;
-  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.55rem;
+  border-radius: 14px;
   flex-shrink: 0;
 }
 
+.activity-menu:hover,
+.activity-menu:focus-visible {
+  background: #ff84da;
+}
+
 .edit-panel {
-  background: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: var(--radius-lg);
+  background: #eef7ff;
+  border: 1px solid #9fc7df;
+  border-radius: 18px;
   padding: 1rem;
   margin-top: 0.5rem;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 2px 8px rgba(120, 110, 145, 0.06);
 }
 
 .edit-title {
   margin-top: 0;
   margin-bottom: 0.75rem;
+  font-weight: 700;
 }
 
 .new-activity-section {
   margin-top: 2rem;
+  background: #eef7ff;
+  border: 1px solid #9fc7df;
+  border-radius: 18px;
+  padding: 1rem;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 2px 8px rgba(120, 110, 145, 0.06);
 }
 
 .new-activity-title {
   font-size: 1.1rem;
+  margin-top: 0;
   margin-bottom: 0.75rem;
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 14px;
+  border: 1px solid #9fc7df;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  background: #ffffff;
+}
+
+.save-button {
+  background: #d9ccff;
+  border: 1px solid #7da7d9;
+  border-radius: 18px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.cancel-button {
+  background: #ffd1c7;
+  border: 1px solid #d98b7c;
+  border-radius: 18px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.save-button:hover,
+.cancel-button:hover {
+  transform: translateY(-1px);
 }
 
 .modal-overlay {
@@ -86,11 +161,13 @@
 }
 
 .modal-content {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.95);
   width: 100%;
   max-width: 360px;
-  border-radius: var(--radius-xl);
+  border-radius: 24px;
   padding: 1.25rem;
+  border: var(--border-soft);
+  box-shadow: 0 8px 24px rgba(120, 110, 145, 0.16);
 }
 
 .modal-text {
@@ -109,7 +186,19 @@
 
 @media (max-width: 480px) {
   .activity-category-page {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .activity-category-panel {
     padding: 1rem;
+    border-radius: var(--radius-card);
+  }
+
+  .category-title {
+    font-size: 1.35rem;
+    margin-top: 0.75rem;
+    border-radius: 16px;
   }
 
   .activity-item {
@@ -118,5 +207,9 @@
 
   .activity-info {
     font-size: 0.95rem;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
   }
 }

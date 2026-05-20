@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getEnergy, getSettings } from "../utils/storage";
+import { useEnergy } from "../context/energyContext";
 
 import {
   getPetLevel,
@@ -14,32 +14,18 @@ import "../assets/styles/Home.css";
 
 export default function Home() {
   const navigate = useNavigate();
-
-  const [energy, setEnergy] = useState(getEnergy());
-  const [settings, setSettings] = useState(getSettings());
+  const { energy, settings, loading } = useEnergy();
 
   const [phrase, setPhrase] = useState("");
   const [showPhrase, setShowPhrase] = useState(false);
-
-  useEffect(() => {
-    const refreshData = () => {
-      setEnergy(getEnergy());
-      setSettings(getSettings());
-    };
-
-    refreshData();
-    window.addEventListener("focus", refreshData);
-
-    return () => {
-      window.removeEventListener("focus", refreshData);
-    };
-  }, []);
 
   const petLevel = useMemo(() => getPetLevel(energy), [energy]);
   const cookieStates = useMemo(() => getCookiesByEnergy(energy), [energy]);
   const petImage = useMemo(() => getPetImage(energy), [energy]);
 
   useEffect(() => {
+    if (loading) return;
+
     let interval;
     let timeout;
 
@@ -54,17 +40,16 @@ export default function Home() {
 
     showPhraseNow();
 
-    interval = setInterval(() => {
-      showPhraseNow();
-    }, 30000);
+    interval = setInterval(showPhraseNow, 30000);
 
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [petLevel]);
+  }, [petLevel, loading]);
 
   useEffect(() => {
+    if (loading) return;
     if (energy !== 0) return;
     if (!("speechSynthesis" in window)) return;
 
@@ -78,7 +63,17 @@ export default function Home() {
     message.rate = 0.9;
 
     window.speechSynthesis.speak(message);
-  }, [energy]);
+  }, [energy, loading]);
+
+  if (loading) {
+    return (
+      <main className="home-page">
+        <section className="home-card">
+          <p>Cargando NeuroPet...</p>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="home-page">

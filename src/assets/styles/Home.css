@@ -9,10 +9,12 @@
 .home-card {
   width: 100%;
   max-width: 480px;
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.58);
   border: var(--border-soft);
   border-radius: 28px;
-  box-shadow: var(--shadow-soft);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    0 8px 24px rgba(120, 110, 145, 0.08);
   padding: 1.5rem 1.25rem 1.75rem;
   display: flex;
   flex-direction: column;
@@ -30,10 +32,10 @@
   background: #d8f3dc;
   color: #2d6a4f;
   border: 1px solid #2f7a51;
-  border-radius: var(--radius-md);
-  padding: 0.45rem 0.9rem;
+  border-radius: 14px;
+  padding: 0.5rem 0.95rem;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -74,7 +76,14 @@
   height: auto;
   object-fit: contain;
   display: block;
-  transition: opacity 0.35s ease-in-out, transform 0.25s ease;
+
+  filter: drop-shadow(
+    0 10px 18px rgba(0, 0, 0, 0.08)
+  );
+
+  transition:
+    opacity 0.35s ease-in-out,
+    transform 0.25s ease;
 }
 
 .pet-image:hover {
@@ -106,17 +115,20 @@
 .pet-speech {
   min-height: 52px;
   max-width: 280px;
-  background: var(--pastel-blue);
+  background: #dff3ff;
   color: var(--text-main);
-  border-radius: var(--radius-xl);
+  border: 1px solid #8fc7e8;
+  border-radius: 18px;
   padding: 0.85rem 1rem;
   text-align: center;
   line-height: 1.4;
   font-size: 0.97rem;
-  border: var(--border-soft);
   opacity: 0;
   transform: translateY(6px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
+
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
 }
 
 .pet-speech.visible {
@@ -135,13 +147,13 @@
 .secondary-button {
   width: 100%;
   min-height: 56px;
-  border: none;
-  border-radius: var(--radius-xl);
+  border-radius: 18px;
   padding: 0.95rem 1rem;
   font-size: 1rem;
   font-weight: 700;
   color: var(--text-main);
   cursor: pointer;
+
   transition:
     transform 0.15s ease,
     background 0.2s ease,
@@ -151,22 +163,24 @@
 }
 
 .primary-button {
-  background: var(--button-main);
+  background: #d9ccff;
+  border: 1px solid #7da7d9;
 }
 
 .primary-button:hover,
 .primary-button:focus-visible {
-  background: var(--button-main-hover);
+  background: #cdbdff;
   transform: translateY(-1px);
 }
 
 .secondary-button {
-  background: var(--button-secondary);
+  background: #ffd1c7;
+  border: 1px solid #d98b7c;
 }
 
 .secondary-button:hover,
 .secondary-button:focus-visible {
-  background: var(--button-secondary-hover);
+  background: #ffc2b4;
   transform: translateY(-1px);
 }
 

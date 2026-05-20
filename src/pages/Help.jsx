@@ -109,13 +109,13 @@ export default function Help() {
           ← Atrás
         </button>
 
-        <div
-          onClick={nextGroundingStep}
-          className="grounding-container"
-        >
-          <div>
+        <div className="grounding-container">
+          <div
+            onClick={nextGroundingStep}
+            className="grounding-card"
+          >
             <p className="grounding-subtitle">
-              Toca la pantalla para continuar
+              Haz clic para continuar
             </p>
 
             <h1 className="grounding-title">
@@ -138,7 +138,7 @@ export default function Help() {
         </button>
 
         <div className="breathing-container">
-          <div>
+          <div className="breathing-card">
             <div className="breathing-circle-wrapper">
               <div
                 className={`breathing-circle ${
@@ -171,45 +171,47 @@ export default function Help() {
         ← Inicio
       </button>
 
-      <h1 className="help-title">
-        Necesito ayuda
-      </h1>
+      <div className="help-panel">
+        <h1 className="help-title">
+          Necesito ayuda
+        </h1>
 
-      <p className="help-subtitle">
-        Vamos poco a poco. Ahora no toca rendir.
-      </p>
+        <p className="help-subtitle">
+          Vamos poco a poco. Ahora no toca rendir.
+        </p>
 
-      <div className="help-buttons">
-        <button
-          onClick={startBreathing}
-          className="help-action-button"
-        >
-          🫁 Respirar
-        </button>
+        <div className="help-buttons">
+          <button
+            onClick={startBreathing}
+            className="help-action-button"
+          >
+            🫁 Respirar
+          </button>
 
-        <button
-          onClick={startGrounding}
-          className="help-action-button"
-        >
-          🧍 Grounding
-        </button>
-      </div>
+          <button
+            onClick={startGrounding}
+            className="help-action-button"
+          >
+            🧍 Grounding
+          </button>
+        </div>
 
-      <div className="checklist-card">
-        <h2 className="checklist-title">
-          Checklist rápida
-        </h2>
+        <div className="checklist-card">
+          <h2 className="checklist-title">
+            Checklist rápida
+          </h2>
 
-        <ul className="checklist-list">
-          <li>💧 Beber agua</li>
-          <li>🧘 Aislarse en un sitio tranquilo</li>
-          <li>🌙 Apagar las luces</li>
-          <li>🔇 Reducir el ruido</li>
-        </ul>
-      </div>
+          <ul className="checklist-list">
+            <li>💧 Beber agua</li>
+            <li>🧘 Aislarse en un sitio tranquilo</li>
+            <li>🌙 Apagar las luces</li>
+            <li>🔇 Reducir el ruido</li>
+          </ul>
+        </div>
 
-      <div className="support-message">
-        🐾 Estoy contigo. Vamos paso a paso.
+        <div className="support-message">
+          🐾 Estoy contigo. Vamos paso a paso.
+        </div>
       </div>
     </main>
   );
