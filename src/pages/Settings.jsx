@@ -20,6 +20,24 @@ const DEFAULT_SETTINGS = {
   darkMode: false,
 };
 
+const PROFILE_KEY = "neuropet_profile";
+
+const AVATARS = [
+  "/images/avatars/avatar_stock.webp",
+  "/images/avatars/woman1.png",
+  "/images/avatars/woman2.png",
+  "/images/avatars/woman3.png",
+  "/images/avatars/woman4.png",
+  "/images/avatars/woman5.png",
+  "/images/avatars/woman6.png",
+  "/images/avatars/man1.png",
+  "/images/avatars/man2.png",
+  "/images/avatars/man3.png",
+  "/images/avatars/man4.png",
+  "/images/avatars/man5.png",
+  "/images/avatars/man6.png",
+];
+
 export default function Settings() {
   const navigate = useNavigate();
 
@@ -32,9 +50,28 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+
+  const [profileForm, setProfileForm] = useState({
+    username: "",
+    avatar: "/images/avatars/avatar_stock.webp",
+  });
 
   useEffect(() => {
     async function loadUserData() {
+      const savedProfile = JSON.parse(
+        localStorage.getItem(PROFILE_KEY)
+      );
+
+      if (savedProfile) {
+        setProfileForm({
+          username: savedProfile.username || "",
+          avatar:
+            savedProfile.avatar ||
+            "/images/avatars/avatar_stock.webp",
+        });
+      }
+
       const currentUser = await getCurrentUser();
 
       setUser(currentUser);
@@ -44,6 +81,15 @@ export default function Settings() {
 
         if (data) {
           setProfile(data);
+
+          if (!savedProfile) {
+            setProfileForm({
+              username: data.username || "",
+              avatar:
+                data.avatar ||
+                "/images/avatars/avatar_stock.webp",
+            });
+          }
         } else {
           const createdProfile =
             await createProfileIfMissing(
@@ -63,16 +109,12 @@ export default function Settings() {
     setSettings({
       autoRecovery:
         cloudSettings?.autoRecovery ?? false,
-
       showExactEnergy:
         cloudSettings?.showExactEnergy ?? true,
-
       autoOpenHelp:
         cloudSettings?.autoOpenHelp ?? false,
-
       breathingCycles:
         cloudSettings?.breathingCycles ?? 5,
-
       darkMode:
         cloudSettings?.darkMode ?? false,
     });
@@ -102,13 +144,32 @@ export default function Settings() {
 
   const handleSave = async () => {
     await updateSettings(settings);
-
     alert("Configuración guardada");
+  };
+
+  const handleSaveProfile = () => {
+    const updatedProfile = {
+      username: profileForm.username.trim(),
+      avatar: profileForm.avatar,
+    };
+
+    localStorage.setItem(
+      PROFILE_KEY,
+      JSON.stringify(updatedProfile)
+    );
+
+    setProfile((prev) => ({
+      ...prev,
+      ...updatedProfile,
+    }));
+
+    setShowEditProfile(false);
+
+    alert("Perfil guardado");
   };
 
   const handleClearHistory = async () => {
     await clearLogs();
-
     alert("Historial borrado");
   };
 
@@ -120,10 +181,16 @@ export default function Settings() {
     if (!confirmed) return;
 
     await clearLogs();
-
     await updateSettings(DEFAULT_SETTINGS);
 
+    localStorage.removeItem(PROFILE_KEY);
+
     setSettings(DEFAULT_SETTINGS);
+
+    setProfileForm({
+      username: "",
+      avatar: "/images/avatars/avatar_stock.webp",
+    });
 
     document.body.classList.remove("dark-mode");
 
@@ -134,7 +201,6 @@ export default function Settings() {
 
   return (
     <main className="settings-page">
-
       <div className="settings-top">
         <button
           onClick={() => navigate("/")}
@@ -145,18 +211,15 @@ export default function Settings() {
       </div>
 
       <div className="settings-center">
-
         <div className="settings-panel">
-
           <h1 className="settings-title">
             Configuración
           </h1>
 
           <div className="settings-container">
-
             <div className="profile-card">
               <img
-                src="/images/avatar_stock.webp"
+                src={profileForm.avatar}
                 alt="avatar usuario"
                 className="profile-avatar"
               />
@@ -164,7 +227,9 @@ export default function Settings() {
               <div className="profile-info">
                 <h2 className="profile-name">
                   {user
-                    ? profile?.username || user.email
+                    ? profileForm.username ||
+                      profile?.username ||
+                      user.email
                     : "Sesión"}
                 </h2>
 
@@ -175,29 +240,93 @@ export default function Settings() {
                 </p>
               </div>
 
-              {user ? (
+              <div className="profile-actions">
                 <button
-                  onClick={async () => {
-                    await signOut();
-
-                    setUser(null);
-                    setProfile(null);
-
-                    navigate("/login");
-                  }}
-                  className="logout-button"
+                  onClick={() =>
+                    setShowEditProfile((prev) => !prev)
+                  }
+                  className="history-button"
                 >
-                  Cerrar sesión
+                  Editar perfil
                 </button>
-              ) : (
-                <button
-                  onClick={() => navigate("/login")}
-                  className="login-button"
-                >
-                  Iniciar sesión
-                </button>
-              )}
+
+                {user ? (
+                  <button
+                    onClick={async () => {
+                      await signOut();
+
+                      setUser(null);
+                      setProfile(null);
+
+                      navigate("/login");
+                    }}
+                    className="logout-button"
+                  >
+                    Cerrar sesión
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="login-button"
+                  >
+                    Iniciar sesión
+                  </button>
+                )}
+              </div>
             </div>
+
+            {showEditProfile && (
+              <SettingCard title="Editar perfil">
+                <label className="settings-select-label">
+                  Nombre visible
+
+                  <input
+                    type="text"
+                    value={profileForm.username}
+                    onChange={(e) =>
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        username: e.target.value,
+                      }))
+                    }
+                    placeholder="Tu nombre"
+                    className="input-field"
+                  />
+                </label>
+
+                <label className="settings-select-label">
+                  Avatar
+
+                  <select
+                    value={profileForm.avatar}
+                    onChange={(e) =>
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        avatar: e.target.value,
+                      }))
+                    }
+                    className="settings-select"
+                  >
+                    {AVATARS.map((avatar) => (
+                      <option key={avatar} value={avatar}>
+                        {avatar
+                          .split("/")
+                          .pop()
+                          .replace(".png", "")
+                          .replace(".webp", "")}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <button
+                  onClick={handleSaveProfile}
+                  className="save-settings-button"
+                >
+                  Guardar perfil
+                </button>
+              </SettingCard>
+            )}
 
             <SettingCard title="Apariencia">
               <label className="settings-label">
@@ -209,14 +338,11 @@ export default function Settings() {
                   }
                 />
 
-                <span>
-                  Activar tema oscuro
-                </span>
+                <span>Activar tema oscuro</span>
               </label>
 
               <p className="settings-description">
-                Reduce la fatiga visual y la
-                sobrecarga sensorial.
+                Reduce la fatiga visual y la sobrecarga sensorial.
               </p>
             </SettingCard>
 
@@ -231,8 +357,7 @@ export default function Settings() {
                 />
 
                 <span>
-                  Activar recuperación automática
-                  de energía
+                  Activar recuperación automática de energía
                 </span>
               </label>
 
@@ -252,8 +377,7 @@ export default function Settings() {
                 />
 
                 <span>
-                  Mostrar porcentaje exacto de
-                  energía
+                  Mostrar porcentaje exacto de energía
                 </span>
               </label>
             </SettingCard>
@@ -269,8 +393,7 @@ export default function Settings() {
                 />
 
                 <span>
-                  Abrir ayuda automáticamente al
-                  llegar a 0%
+                  Abrir ayuda automáticamente al llegar a 0%
                 </span>
               </label>
             </SettingCard>
@@ -282,9 +405,7 @@ export default function Settings() {
                 <select
                   value={settings.breathingCycles}
                   onChange={(e) =>
-                    handleCyclesChange(
-                      e.target.value
-                    )
+                    handleCyclesChange(e.target.value)
                   }
                   className="settings-select"
                 >
@@ -305,15 +426,12 @@ export default function Settings() {
 
             <SettingCard title="Historial">
               <p className="settings-description">
-                Guarda actividades, energía y
-                duración.
+                Guarda actividades, energía y duración.
               </p>
 
               <div className="history-buttons">
                 <button
-                  onClick={() =>
-                    navigate("/history")
-                  }
+                  onClick={() => navigate("/history")}
                   className="history-button"
                 >
                   Ver historial
@@ -349,13 +467,9 @@ export default function Settings() {
                 Guardar
               </button>
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </main>
   );
 }

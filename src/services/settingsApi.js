@@ -40,7 +40,7 @@ export async function saveSettingsToCloud(settings) {
       "Error guardando settings:",
       error
     );
-  }
+  } 
 
   return error;
 }
