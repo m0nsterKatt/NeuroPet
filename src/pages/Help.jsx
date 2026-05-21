@@ -1,6 +1,8 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useEnergy } from "../context/energyContext";
+
 import "../assets/styles/Help.css";
 
 const groundingSteps = [
@@ -13,11 +15,15 @@ const groundingSteps = [
 
 export default function Help() {
   const navigate = useNavigate();
+
+  const { settings } = useEnergy();
+
   const breathingIntervalRef = useRef(null);
 
   const [mode, setMode] = useState(null);
   const [groundingStep, setGroundingStep] = useState(0);
-  const [breathingState, setBreathingState] = useState("Inhala");
+  const [breathingState, setBreathingState] =
+    useState("Inhala");
 
   function stopBreathing() {
     if (breathingIntervalRef.current) {
@@ -32,11 +38,13 @@ export default function Help() {
   function startGrounding() {
     setMode("grounding");
     setGroundingStep(0);
+
     speak(groundingSteps[0]);
   }
 
   function exitGrounding() {
     window.speechSynthesis?.cancel();
+
     setMode(null);
     setGroundingStep(0);
   }
@@ -46,11 +54,14 @@ export default function Help() {
 
     if (nextStep >= groundingSteps.length) {
       exitGrounding();
-      speak("Si no es suficiente, pide ayuda.");
+
+      speak("Si no es suficiente, pide ayuda");
+
       return;
     }
 
     setGroundingStep(nextStep);
+
     speak(groundingSteps[nextStep]);
   }
 
@@ -58,31 +69,37 @@ export default function Help() {
     stopBreathing();
 
     setMode("breathing");
+
     setBreathingState("Inhala");
+
     speak("Inhala");
 
     let inhale = true;
     let cycles = 0;
 
-    const savedSettings =
-      JSON.parse(localStorage.getItem("settings")) || {};
+    const maxCycles =
+      settings?.breathingCycles || 5;
 
-    const maxCycles = savedSettings.breathingCycles || 5;
+    breathingIntervalRef.current = setInterval(
+      () => {
+        inhale = !inhale;
 
-    breathingIntervalRef.current = setInterval(() => {
-      inhale = !inhale;
+        const newState = inhale
+          ? "Inhala"
+          : "Exhala";
 
-      const newState = inhale ? "Inhala" : "Exhala";
+        setBreathingState(newState);
 
-      setBreathingState(newState);
-      speak(newState);
+        speak(newState);
 
-      cycles++;
+        cycles++;
 
-      if (cycles >= maxCycles * 2) {
-        stopBreathing();
-      }
-    }, 4000);
+        if (cycles >= maxCycles * 2) {
+          stopBreathing();
+        }
+      },
+      4000
+    );
   }
 
   function speak(text) {
@@ -90,7 +107,8 @@ export default function Help() {
 
     window.speechSynthesis.cancel();
 
-    const message = new SpeechSynthesisUtterance(text);
+    const message =
+      new SpeechSynthesisUtterance(text);
 
     message.lang = "es-ES";
     message.rate = 0.85;
@@ -102,14 +120,17 @@ export default function Help() {
   if (mode === "grounding") {
     return (
       <main className="grounding-page">
-        <button
-          onClick={exitGrounding}
-          className="back-button"
-        >
-          ← Atrás
-        </button>
 
-        <div className="grounding-container">
+        <div className="grounding-top">
+          <button
+            onClick={exitGrounding}
+            className="back-button"
+          >
+            ← Atrás
+          </button>
+        </div>
+
+        <div className="grounding-center">
           <div
             onClick={nextGroundingStep}
             className="grounding-card"
@@ -119,10 +140,15 @@ export default function Help() {
             </p>
 
             <h1 className="grounding-title">
-              {groundingSteps[groundingStep]}
+              {
+                groundingSteps[
+                  groundingStep
+                ]
+              }
             </h1>
           </div>
         </div>
+
       </main>
     );
   }
@@ -130,19 +156,23 @@ export default function Help() {
   if (mode === "breathing") {
     return (
       <main className="breathing-page">
-        <button
-          onClick={stopBreathing}
-          className="back-button"
-        >
-          ← Atrás
-        </button>
 
-        <div className="breathing-container">
+        <div className="breathing-top">
+          <button
+            onClick={stopBreathing}
+            className="back-button"
+          >
+            ← Atrás
+          </button>
+        </div>
+
+        <div className="breathing-center">
           <div className="breathing-card">
             <div className="breathing-circle-wrapper">
               <div
                 className={`breathing-circle ${
-                  breathingState === "Inhala"
+                  breathingState ===
+                  "Inhala"
                     ? "inhale"
                     : "exhale"
                 }`}
@@ -154,65 +184,80 @@ export default function Help() {
             </h1>
 
             <p className="breathing-text">
-              Sigue el círculo. No tienes que hacer nada más.
+              Sigue el círculo. No tienes que
+              hacer nada más.
             </p>
           </div>
         </div>
+
       </main>
     );
   }
 
   return (
     <main className="help-page">
-      <button
-        onClick={() => navigate("/")}
-        className="back-button"
-      >
-        ← Inicio
-      </button>
 
-      <div className="help-panel">
-        <h1 className="help-title">
-          Necesito ayuda
-        </h1>
-
-        <p className="help-subtitle">
-          Vamos poco a poco. Ahora no toca rendir.
-        </p>
-
-        <div className="help-buttons">
-          <button
-            onClick={startBreathing}
-            className="help-action-button"
-          >
-            🫁 Respirar
-          </button>
-
-          <button
-            onClick={startGrounding}
-            className="help-action-button"
-          >
-            🧍 Grounding
-          </button>
-        </div>
-
-        <div className="checklist-card">
-          <h2 className="checklist-title">
-            Checklist rápida
-          </h2>
-
-          <ul className="checklist-list">
-            <li>💧 Beber agua</li>
-            <li>🧘 Aislarse en un sitio tranquilo</li>
-            <li>🌙 Apagar las luces</li>
-            <li>🔇 Reducir el ruido</li>
-          </ul>
-        </div>
-
-        <div className="support-message">
-          🐾 Estoy contigo. Vamos paso a paso.
-        </div>
+      <div className="help-top">
+        <button
+          onClick={() => navigate("/")}
+          className="back-button"
+        >
+          ← Inicio
+        </button>
       </div>
+
+      <div className="help-center">
+
+        <div className="help-panel">
+
+          <h1 className="help-title">
+            Necesito ayuda
+          </h1>
+
+          <p className="help-subtitle">
+            Vamos poco a poco. Ahora no toca
+            rendir.
+          </p>
+
+          <div className="help-buttons">
+            <button
+              onClick={startBreathing}
+              className="help-action-button"
+            >
+              🫁 Respirar
+            </button>
+
+            <button
+              onClick={startGrounding}
+              className="help-action-button"
+            >
+              🧍 Grounding
+            </button>
+          </div>
+
+          <div className="checklist-card">
+            <h2 className="checklist-title">
+              Checklist rápida
+            </h2>
+
+            <ul className="checklist-list">
+              <li>💧 Beber agua</li>
+              <li>
+                🧘 Aislarse en un sitio tranquilo
+              </li>
+              <li>🌙 Apagar las luces</li>
+              <li>🔇 Reducir el ruido</li>
+            </ul>
+          </div>
+
+          <div className="support-message">
+            🐾 Estoy contigo. Vamos paso a paso.
+          </div>
+
+        </div>
+
+      </div>
+
     </main>
   );
 }

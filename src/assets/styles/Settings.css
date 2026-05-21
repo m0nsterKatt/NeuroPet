@@ -1,32 +1,59 @@
 .settings-page {
-  padding-top: 5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  padding-bottom: 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  padding: 2rem 1.5rem;
+}
+
+.settings-top {
+  width: 100%;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0 auto 1rem;
+}
+
+.settings-center {
+  flex: 1;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .settings-panel {
   width: 100%;
+  max-width: 600px;
+
   background: rgba(255, 255, 255, 0.62);
+
   border: var(--border-soft);
+
   border-radius: 28px;
+
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.75),
     0 8px 24px rgba(120, 110, 145, 0.08);
+
   padding: 1.25rem;
 }
 
 .settings-title {
   background: #d8f3dc;
+
   text-align: center;
+
   font-weight: bold;
+
   padding: 1rem;
+
   border-radius: 18px;
+
   width: 100%;
+
   margin: 1rem 0 1.5rem;
+
   color: #2d6a4f;
+
   border: 1px solid #2f7a51;
 }
 
@@ -41,9 +68,13 @@
 .profile-card,
 .setting-card {
   background: #eef7ff;
+
   border: 1px solid #9fc7df;
+
   border-radius: 18px;
+
   padding: 1rem;
+
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     0 2px 8px rgba(120, 110, 145, 0.06);
@@ -158,32 +189,6 @@
   transform: translateY(-1px);
 }
 
-/* HISTORY */
-
-.history-buttons {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-  flex-wrap: wrap;
-}
-
-/* RESET */
-
-.reset-card {
-  background: #fff1f2;
-  border: 1px solid #fda4af;
-  border-radius: 18px;
-  padding: 1rem;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 2px 8px rgba(120, 110, 145, 0.06);
-}
-
-.reset-title {
-  color: #9f1239;
-  margin-top: 0;
-}
-
 /* SAVE */
 
 .save-container {
@@ -195,28 +200,27 @@
 /* MOBILE */
 
 @media (max-width: 480px) {
+
   .settings-page {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding: 1rem;
+  }
+
+  .settings-top {
+    margin-bottom: 0.75rem;
+  }
+
+  .settings-center {
+    align-items: stretch;
   }
 
   .settings-panel {
-    padding: 1rem;
     border-radius: var(--radius-card);
-  }
-
-  .settings-title {
-    margin-top: 0.75rem;
-    border-radius: 16px;
+    padding: 1rem;
   }
 
   .profile-card {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .history-buttons {
-    flex-direction: column;
   }
 
   .login-button,
@@ -228,7 +232,4 @@
     width: 100%;
   }
 
-  .save-container {
-    justify-content: stretch;
-  }
 }

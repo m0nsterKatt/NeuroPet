@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { EnergyProvider } from "./context/energyContext";
 import App from "./App";
-import "./index.css";
+import "./assets/styles/global.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

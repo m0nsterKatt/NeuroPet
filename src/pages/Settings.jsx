@@ -31,7 +31,6 @@ export default function Settings() {
 
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
   useEffect(() => {
@@ -79,6 +78,14 @@ export default function Settings() {
     });
   }, [cloudSettings]);
 
+  useEffect(() => {
+    if (settings.darkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+  }, [settings.darkMode]);
+
   const handleChange = (key) => {
     setSettings((prev) => ({
       ...prev,
@@ -118,6 +125,8 @@ export default function Settings() {
 
     setSettings(DEFAULT_SETTINGS);
 
+    document.body.classList.remove("dark-mode");
+
     alert("Datos reiniciados");
 
     navigate("/");
@@ -125,218 +134,228 @@ export default function Settings() {
 
   return (
     <main className="settings-page">
-      <button
-        onClick={() => navigate("/")}
-        className="back-button"
-      >
-        ← Inicio
-      </button>
 
-      <div className="settings-panel">
-        <h1 className="settings-title">
-          Configuración
-        </h1>
+      <div className="settings-top">
+        <button
+          onClick={() => navigate("/")}
+          className="back-button"
+        >
+          ← Inicio
+        </button>
+      </div>
 
-        <div className="settings-container">
+      <div className="settings-center">
 
-          <div className="profile-card">
-            <img
-              src="/images/avatar_stock.webp"
-              alt="avatar usuario"
-              className="profile-avatar"
-            />
+        <div className="settings-panel">
 
-            <div className="profile-info">
-              <h2 className="profile-name">
-                {user
-                  ? profile?.username || user.email
-                  : "Sesión"}
+          <h1 className="settings-title">
+            Configuración
+          </h1>
+
+          <div className="settings-container">
+
+            <div className="profile-card">
+              <img
+                src="/images/avatar_stock.webp"
+                alt="avatar usuario"
+                className="profile-avatar"
+              />
+
+              <div className="profile-info">
+                <h2 className="profile-name">
+                  {user
+                    ? profile?.username || user.email
+                    : "Sesión"}
+                </h2>
+
+                <p className="profile-status">
+                  {user
+                    ? "Sesión iniciada"
+                    : "No has iniciado sesión"}
+                </p>
+              </div>
+
+              {user ? (
+                <button
+                  onClick={async () => {
+                    await signOut();
+
+                    setUser(null);
+                    setProfile(null);
+
+                    navigate("/login");
+                  }}
+                  className="logout-button"
+                >
+                  Cerrar sesión
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate("/login")}
+                  className="login-button"
+                >
+                  Iniciar sesión
+                </button>
+              )}
+            </div>
+
+            <SettingCard title="Apariencia">
+              <label className="settings-label">
+                <input
+                  type="checkbox"
+                  checked={settings.darkMode}
+                  onChange={() =>
+                    handleChange("darkMode")
+                  }
+                />
+
+                <span>
+                  Activar tema oscuro
+                </span>
+              </label>
+
+              <p className="settings-description">
+                Reduce la fatiga visual y la
+                sobrecarga sensorial.
+              </p>
+            </SettingCard>
+
+            <SettingCard title="Recuperación automática">
+              <label className="settings-label">
+                <input
+                  type="checkbox"
+                  checked={settings.autoRecovery}
+                  onChange={() =>
+                    handleChange("autoRecovery")
+                  }
+                />
+
+                <span>
+                  Activar recuperación automática
+                  de energía
+                </span>
+              </label>
+
+              <p className="settings-description">
+                Recupera 5% de energía por hora.
+              </p>
+            </SettingCard>
+
+            <SettingCard title="Visualización">
+              <label className="settings-label">
+                <input
+                  type="checkbox"
+                  checked={settings.showExactEnergy}
+                  onChange={() =>
+                    handleChange("showExactEnergy")
+                  }
+                />
+
+                <span>
+                  Mostrar porcentaje exacto de
+                  energía
+                </span>
+              </label>
+            </SettingCard>
+
+            <SettingCard title="Ayuda automática">
+              <label className="settings-label">
+                <input
+                  type="checkbox"
+                  checked={settings.autoOpenHelp}
+                  onChange={() =>
+                    handleChange("autoOpenHelp")
+                  }
+                />
+
+                <span>
+                  Abrir ayuda automáticamente al
+                  llegar a 0%
+                </span>
+              </label>
+            </SettingCard>
+
+            <SettingCard title="Respiración">
+              <label className="settings-select-label">
+                Ciclos de respiración
+
+                <select
+                  value={settings.breathingCycles}
+                  onChange={(e) =>
+                    handleCyclesChange(
+                      e.target.value
+                    )
+                  }
+                  className="settings-select"
+                >
+                  <option value="3">
+                    3 ciclos (rápido)
+                  </option>
+
+                  <option value="5">
+                    5 ciclos (recomendado)
+                  </option>
+
+                  <option value="10">
+                    10 ciclos (profundo)
+                  </option>
+                </select>
+              </label>
+            </SettingCard>
+
+            <SettingCard title="Historial">
+              <p className="settings-description">
+                Guarda actividades, energía y
+                duración.
+              </p>
+
+              <div className="history-buttons">
+                <button
+                  onClick={() =>
+                    navigate("/history")
+                  }
+                  className="history-button"
+                >
+                  Ver historial
+                </button>
+
+                <button
+                  onClick={handleClearHistory}
+                  className="danger-button"
+                >
+                  Borrar historial
+                </button>
+              </div>
+            </SettingCard>
+
+            <div className="reset-card">
+              <h2 className="reset-title">
+                Borrar todo
               </h2>
 
-              <p className="profile-status">
-                {user
-                  ? "Sesión iniciada"
-                  : "No has iniciado sesión"}
-              </p>
-            </div>
-
-            {user ? (
               <button
-                onClick={async () => {
-                  await signOut();
-
-                  setUser(null);
-                  setProfile(null);
-
-                  navigate("/login");
-                }}
-                className="logout-button"
+                onClick={handleClearAll}
+                className="reset-button"
               >
-                Cerrar sesión
-              </button>
-            ) : (
-              <button
-                onClick={() => navigate("/login")}
-                className="login-button"
-              >
-                Iniciar sesión
-              </button>
-            )}
-          </div>
-
-          <SettingCard title="Apariencia">
-            <label className="settings-label">
-              <input
-                type="checkbox"
-                checked={settings.darkMode}
-                onChange={() =>
-                  handleChange("darkMode")
-                }
-              />
-
-              <span>
-                Activar tema oscuro
-              </span>
-            </label>
-
-            <p className="settings-description">
-              Reduce la fatiga visual y la
-              sobrecarga sensorial.
-            </p>
-          </SettingCard>
-
-          <SettingCard title="Recuperación automática">
-            <label className="settings-label">
-              <input
-                type="checkbox"
-                checked={settings.autoRecovery}
-                onChange={() =>
-                  handleChange("autoRecovery")
-                }
-              />
-
-              <span>
-                Activar recuperación automática
-                de energía
-              </span>
-            </label>
-
-            <p className="settings-description">
-              Recupera 5% de energía por hora.
-            </p>
-          </SettingCard>
-
-          <SettingCard title="Visualización">
-            <label className="settings-label">
-              <input
-                type="checkbox"
-                checked={settings.showExactEnergy}
-                onChange={() =>
-                  handleChange("showExactEnergy")
-                }
-              />
-
-              <span>
-                Mostrar porcentaje exacto de
-                energía
-              </span>
-            </label>
-          </SettingCard>
-
-          <SettingCard title="Ayuda automática">
-            <label className="settings-label">
-              <input
-                type="checkbox"
-                checked={settings.autoOpenHelp}
-                onChange={() =>
-                  handleChange("autoOpenHelp")
-                }
-              />
-
-              <span>
-                Abrir ayuda automáticamente al
-                llegar a 0%
-              </span>
-            </label>
-          </SettingCard>
-
-          <SettingCard title="Respiración">
-            <label className="settings-select-label">
-              Ciclos de respiración
-
-              <select
-                value={settings.breathingCycles}
-                onChange={(e) =>
-                  handleCyclesChange(
-                    e.target.value
-                  )
-                }
-                className="settings-select"
-              >
-                <option value="3">
-                  3 ciclos (rápido)
-                </option>
-
-                <option value="5">
-                  5 ciclos (recomendado)
-                </option>
-
-                <option value="10">
-                  10 ciclos (profundo)
-                </option>
-              </select>
-            </label>
-          </SettingCard>
-
-          <SettingCard title="Historial">
-            <p className="settings-description">
-              Guarda actividades, energía y
-              duración.
-            </p>
-
-            <div className="history-buttons">
-              <button
-                onClick={() =>
-                  navigate("/history")
-                }
-                className="history-button"
-              >
-                Ver historial
-              </button>
-
-              <button
-                onClick={handleClearHistory}
-                className="danger-button"
-              >
-                Borrar historial
+                Resetear app
               </button>
             </div>
-          </SettingCard>
 
-          <div className="reset-card">
-            <h2 className="reset-title">
-              Borrar todo
-            </h2>
+            <div className="save-container">
+              <button
+                onClick={handleSave}
+                className="save-settings-button"
+              >
+                Guardar
+              </button>
+            </div>
 
-            <button
-              onClick={handleClearAll}
-              className="reset-button"
-            >
-              Resetear app
-            </button>
-          </div>
-
-          <div className="save-container">
-            <button
-              onClick={handleSave}
-              className="save-settings-button"
-            >
-              Guardar
-            </button>
           </div>
 
         </div>
+
       </div>
+
     </main>
   );
 }
